@@ -10,6 +10,9 @@ const CartItem = ({ onContinueShopping }) => {
     const calculateTotalAmount = () => {
         return cart.reduce((total, item) => total + (item.cost * item.quantity), 0).toFixed(2);
     };
+    const calculateTotalItem = () => {
+        return cart.reduce((total, item) => total + (item.quantity), 0).toFixed(0);
+    };
 
     const handleIncrement = (item) => {
         dispatch(updateItem({ name: item.name, quantity: item.quantity + 1 }));
@@ -31,9 +34,14 @@ const CartItem = ({ onContinueShopping }) => {
         return (item.cost * item.quantity).toFixed(2);
     };
 
+    function onChekout(){
+        alert("Comming Soon!")
+    }
+
     return (
         <div className="cart-container">
             <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
+            <h2 style={{ color: 'black' }}>Total Cart Item: {calculateTotalItem()}</h2>
             <div>
                 {cart.map(item => (
                     <div className="cart-item" key={item.name}>
@@ -52,7 +60,9 @@ const CartItem = ({ onContinueShopping }) => {
                     </div>
                 ))}
             </div>
-            <button className="continue-shopping-button" onClick={onContinueShopping}>Continue Shopping</button>
+            <button className="get-started-button" onClick={onContinueShopping}>Continue Shopping</button>
+            <br />
+            <button className="get-started-button1" onClick={onChekout} >Checkout</button>
         </div>
     );
 };

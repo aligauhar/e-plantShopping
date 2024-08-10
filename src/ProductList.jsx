@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+import AboutUs from './AboutUs';
 import { connect } from 'react-redux';
 import { addItem, removeItem, updateItem } from './actions';
+import { useDispatch, useSelector } from 'react-redux';
 
-function ProductList({addItem}) {
+function ProductList({ addItem }) {
     const [showCart, setShowCart] = useState(false);
+    const [showPlants, setShowPlants] = useState(false);
+    const [showCheckout, setshowCheckout] = useState(false);
+    const cart = useSelector(state => state.cart.items);
+
+    const calculateTotalItem = () => {
+        return cart.reduce((total, item) => total + (item.quantity), 0);
+    };
+
 
     const plantsArray = [
         {
@@ -224,14 +234,14 @@ function ProductList({addItem}) {
         alignItems: 'center',
         fontSize: '20px',
     };
-    
+
     const styleObjUl = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '1100px',
     };
-    
+
     const styleA = {
         color: 'white',
         fontSize: '30px',
@@ -240,22 +250,46 @@ function ProductList({addItem}) {
 
     const handleCartClick = (e) => {
         e.preventDefault();
-        setShowCart(true);
+        setShowCart(true); // Set showCart to true when cart icon is clicked
+        setShowPlants(false);
     };
 
     const handlePlantsClick = (e) => {
         e.preventDefault();
         setShowCart(false);
     };
+    const handleAboutClick = (e) => {
+        e.preventDefault();
+        setShowCart(true);
+        setShowPlants(true);
+        console.log("showPlants", showPlants);
+    };
 
     const handleContinueShopping = (e) => {
         e.preventDefault();
         setShowCart(false);
     };
+    const handleChekout = (e) => {
+        e.preventDefault();
+        setshowCheckout(true);
+    };
 
     const handleAddToCart = (plant) => {
-        addItem(plant);  // Dispatch the addItem action with the plant data
+        if (!isInCart(plant)) {
+            addItem(plant); // Dispatch the addItem action with the plant data
+        }
     };
+
+    const buttonStyle = (plant) => {
+        return isInCart(plant) ? { backgroundColor: 'grey', cursor: 'not-allowed' } : {};
+    };
+
+
+    const isInCart = (plant) => {
+        return cart.some(cartItem => cartItem.name === plant.name);
+    };
+
+
 
     return (
         <div>
@@ -273,7 +307,21 @@ function ProductList({addItem}) {
                 </div>
                 <div style={styleObjUl}>
                     <div><a href="#" onClick={(e) => handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                    <div><a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg></h1></a></div>
+                    <div><a href="#" onClick={(e) => handleAboutClick(e)} style={styleA}>About Us</a></div>
+                    <div><a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
+                        <h1 className='cart'>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" height="68" width="68">
+                                <rect width="156" height="156" fill="none"></rect>
+                                <circle cx="80" cy="216" r="12"></circle>
+                                <circle cx="184" cy="216" r="12"></circle>
+                                <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                            </svg>
+                            {/* Display the total item count on top of the cart icon */}
+                            {cart && cart.length > 0 && (
+                                <span className="cart-count">{calculateTotalItem()}</span>
+                            )}
+                        </h1>
+                    </a></div>
                 </div>
             </div>
             {!showCart ? (
@@ -288,7 +336,14 @@ function ProductList({addItem}) {
                                         <div className="product-title">{plant.name}</div>
                                         <div className="product-description">{plant.description}</div>
                                         <div className="product-cost">${plant.cost}</div>
-                                        <button className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+                                        <button
+                                            className="product-button"
+                                            onClick={() => handleAddToCart(plant)}
+                                            style={buttonStyle(plant)}
+                                            disabled={isInCart(plant)}
+                                        >
+                                            Add to Cart
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -296,7 +351,15 @@ function ProductList({addItem}) {
                     ))}
                 </div>
             ) : (
-                <CartItem onContinueShopping={handleContinueShopping} />
+
+                <div>
+                    {!showPlants ? (
+                        <CartItem onContinueShopping={handleContinueShopping} onChekout={handleChekout} />
+                    ) : (
+                        <AboutUs />
+                    )}
+                </div>
+
             )}
         </div>
     );
